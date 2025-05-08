@@ -1,30 +1,17 @@
-import { useState } from 'react';
-import Head from 'next/head';
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setSuccess(false);
 
-export default function OrderPage() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [frame, setFrame] = useState('');
-  const [image, setImage] = useState(null);
-  const [preview, setPreview] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+  if (!image || !frame || !name || !email) {
+    alert("모든 항목을 입력해주세요.");
+    return;
+  }
 
-  const handleImage = (e) => {
-    const file = e.target.files[0];
-    setImage(file);
+  setLoading(true);
+
+  try {
     const reader = new FileReader();
-    reader.onloadend = () => setPreview(reader.result);
-    reader.readAsDataURL(file);
-  };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!image || !frame || !name || !email) return;
-
-    setLoading(true);
-
-    const reader = new FileReader();
     reader.onloadend = async () => {
       const base64Image = reader.result;
 
@@ -39,66 +26,22 @@ export default function OrderPage() {
         }),
       });
 
+      if (res.ok) {
+        setSuccess(true);
+      } else {
+        alert('제출 실패: 서버 오류');
+      }
       setLoading(false);
-      setSuccess(res.ok);
+    };
+
+    reader.onerror = () => {
+      alert('이미지를 불러오지 못했습니다.');
+      setLoading(false);
     };
 
     reader.readAsDataURL(image);
-  };
-
-  return (
-    <div className="min-h-screen bg-pink-50 p-6">
-      <Head>
-        <title>Place Your Order - ReFrame</title>
-      </Head>
-      <div className="max-w-xl mx-auto bg-white p-8 rounded shadow">
-        <h1 className="text-2xl font-bold mb-4">Place Your Order</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            className="w-full p-2 border rounded"
-            type="text"
-            placeholder="Your Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-          <input
-            className="w-full p-2 border rounded"
-            type="email"
-            placeholder="Your Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <select
-            className="w-full p-2 border rounded"
-            value={frame}
-            onChange={(e) => setFrame(e.target.value)}
-            required
-          >
-            <option value="">Select Frame</option>
-            <option value="Natural">Natural</option>
-            <option value="White">White</option>
-            <option value="Black">Black</option>
-          </select>
-          <input
-            className="w-full"
-            type="file"
-            accept="image/*"
-            onChange={handleImage}
-            required
-          />
-          {preview && <img src={preview} alt="Preview" className="w-48 mx-auto" />}
-          <button
-            type="submit"
-            className="bg-black text-white px-4 py-2 rounded disabled:opacity-50"
-            disabled={loading}
-          >
-            {loading ? 'Submitting...' : 'Submit Order'}
-          </button>
-          {success && <p className="text-green-600">✅ Order submitted successfully!</p>}
-        </form>
-      </div>
-    </div>
-  );
-}
+  } catch (err) {
+    alert('알 수 없는 오류가 발생했습니다.');
+    setLoading(false);
+  }
+};
