@@ -13,9 +13,9 @@ export default function Checkout() {
       setImage(storedImage);
       setFrame(storedFrame);
     } else {
-      router.push('/'); // 선택 없이 넘어왔을 경우 홈으로
+      router.push('/');
     }
-  }, []);
+  }, [router]);
 
   return (
     <div className="min-h-screen bg-white p-6">
