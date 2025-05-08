@@ -12,10 +12,12 @@ export default function OrderPage() {
 
   const handleImage = (e) => {
     const file = e.target.files[0];
-    setImage(file);
-    const reader = new FileReader();
-    reader.onloadend = () => setPreview(reader.result);
-    reader.readAsDataURL(file);
+    if (file) {
+      setImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setPreview(reader.result);
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -38,7 +40,7 @@ export default function OrderPage() {
             email,
             frame,
             image: base64Image,
-            address: '', // optional
+            address: '', // address optional
           }),
         }
       );
@@ -46,17 +48,16 @@ export default function OrderPage() {
       setLoading(false);
       setSuccess(res.ok);
     };
-
     reader.readAsDataURL(image);
   };
 
   return (
     <div className="min-h-screen bg-pink-50 p-6">
       <Head>
-        <title>Place Your Order - ReFrame</title>
+        <title>ReFrame – Order</title>
       </Head>
       <div className="max-w-xl mx-auto bg-white p-8 rounded shadow">
-        <h1 className="text-2xl font-bold mb-4">Place Your Order</h1>
+        <h1 className="text-2xl font-bold mb-4 text-center">Place Your Order</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             className="w-full p-2 border rounded"
@@ -74,17 +75,6 @@ export default function OrderPage() {
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-          <select
-            className="w-full p-2 border rounded"
-            value={frame}
-            onChange={(e) => setFrame(e.target.value)}
-            required
-          >
-            <option value="">Select Frame</option>
-            <option value="Natural">Natural</option>
-            <option value="White">White</option>
-            <option value="Black">Black</option>
-          </select>
           <input
             className="w-full"
             type="file"
@@ -92,15 +82,47 @@ export default function OrderPage() {
             onChange={handleImage}
             required
           />
-          {preview && <img src={preview} alt="Preview" className="w-48 mx-auto" />}
+
+          <div className="flex justify-around mt-4">
+            {['Natural', 'White', 'Black'].map((option) => (
+              <label key={option} className={`text-center cursor-pointer ${frame === option ? 'ring-2 ring-blue-500 rounded' : ''}`}>
+                <img src={`/frames/${option.toLowerCase()}.png`} alt={option} className="w-24 h-32 object-contain mx-auto mb-1" />
+                <input
+                  type="radio"
+                  name="frame"
+                  value={option}
+                  checked={frame === option}
+                  onChange={(e) => setFrame(e.target.value)}
+                  className="hidden"
+                />
+                <span>{option}</span>
+              </label>
+            ))}
+          </div>
+
+          {preview && (
+            <div className="mt-6 relative w-full max-w-sm mx-auto">
+              <img
+                src={preview}
+                alt="Uploaded"
+                className="w-full h-auto rounded absolute top-0 left-0 z-0 object-contain"
+              />
+              <img
+                src={`/frames/${frame.toLowerCase()}.png`}
+                alt={`${frame} Frame`}
+                className="w-full h-auto relative z-10 pointer-events-none"
+              />
+            </div>
+          )}
+
           <button
             type="submit"
-            className="bg-black text-white px-4 py-2 rounded disabled:opacity-50"
+            className="w-full bg-black text-white px-4 py-2 rounded disabled:opacity-50"
             disabled={loading}
           >
             {loading ? 'Submitting...' : 'Submit Order'}
           </button>
-          {success && <p className="text-green-600">✅ Order submitted successfully!</p>}
+          {success && <p className="text-green-600 text-center">✅ Order submitted successfully!</p>}
         </form>
       </div>
     </div>
