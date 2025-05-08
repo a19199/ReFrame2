@@ -1,13 +1,18 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 export default function Home() {
   const [image, setImage] = useState(null);
   const [selectedFrame, setSelectedFrame] = useState(null);
 
-  const handleUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const frameOptions = [
+    { name: "Natural", url: "/frames/natural.png" },
+    { name: "White", url: "/frames/white.png" },
+    { name: "Black", url: "/frames/black.png" },
+  ];
 
+  const handleUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
     const reader = new FileReader();
     reader.onloadend = () => {
       setImage(reader.result);
@@ -15,49 +20,48 @@ export default function Home() {
     reader.readAsDataURL(file);
   };
 
-  const frames = [
-    { name: 'Natural', url: '/frames/natural.png' },
-    { name: 'White', url: '/frames/white.png' },
-    { name: 'Black', url: '/frames/black.png' },
-  ];
-
   return (
-    <div className="min-h-screen bg-pink-50 p-8 text-gray-800">
-      <h1 className="text-4xl font-bold mb-4">ReFrame</h1>
-      <p className="mb-6">Upload your photo, choose a frame, and see your preview instantly.</p>
+    <div className="min-h-screen bg-pink-50 p-6 text-center">
+      <h1 className="text-4xl font-bold text-gray-800 mb-2">ReFrame</h1>
+      <p className="text-gray-600 mb-6">
+        Upload your photo, choose a frame, and see your preview instantly.
+      </p>
 
-      <div className="mb-6">
-        <input type="file" accept="image/*" onChange={handleUpload} />
-      </div>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleUpload}
+        className="mb-6"
+      />
 
-      <div className="flex gap-4 mb-6">
-        {frames.map((frame) => (
+      <div className="flex justify-center gap-4 mb-8">
+        {frameOptions.map((frame) => (
           <button
             key={frame.name}
             onClick={() => setSelectedFrame(frame.url)}
-            className={`border rounded p-1 ${
-              selectedFrame === frame.url ? 'border-blue-500' : 'border-transparent'
+            className={`border rounded p-2 transition ${
+              selectedFrame === frame.url ? "border-blue-500" : "border-gray-300"
             }`}
           >
-            <img src={frame.url} alt={frame.name} className="w-24 h-auto" />
-            <p className="text-sm text-center">{frame.name}</p>
+            <img src={frame.url} alt={frame.name} className="w-20 h-24 object-contain" />
+            <p className="text-sm mt-1">{frame.name}</p>
           </button>
         ))}
       </div>
 
-      <div className="relative w-full max-w-md mx-auto aspect-square">
+      <div className="relative w-[300px] h-[400px] mx-auto">
         {image && (
           <img
             src={image}
             alt="Uploaded"
-            className="absolute top-0 left-0 w-full h-full object-cover z-0"
+            className="absolute inset-0 w-full h-full object-contain z-10"
           />
         )}
         {selectedFrame && (
           <img
             src={selectedFrame}
             alt="Frame"
-            className="absolute top-0 left-0 w-full h-full object-contain z-10 pointer-events-none"
+            className="absolute inset-0 w-full h-full object-contain z-20 pointer-events-none"
           />
         )}
       </div>
