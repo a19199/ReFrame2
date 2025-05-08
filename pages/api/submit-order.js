@@ -1,32 +1,25 @@
-// /pages/api/submit-order.js
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).end('Method Not Allowed');
   }
 
-  const body = req.body;
+  const { name, email, frame, image } = req.body;
 
   try {
-    const response = await fetch(
-      'https://script.google.com/macros/s/AKfycbyuBDM7y0vrRFI5l_JlRNyQYpjELcIMrvIR5CA0u1liVoRUX99ms7xSht57cEnqaMWC9A/exec',
-      {
-        method: 'POST',
-        body: JSON.stringify(body),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    const scriptUrl = 'https://script.google.com/macros/s/AKfycbyuBDM7y0vrRFI5l_JlRNyQYpjELcIMrvIR5CA0u1liVoRUX99ms7xSht57cEnqaMWC9A/exec';
 
-    const data = await response.json();
+    const response = await fetch(scriptUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, frame, image }),
+    });
 
     if (!response.ok) {
-      throw new Error(data.error || 'Failed to submit order');
+      throw new Error('Failed to send to Google Sheets');
     }
 
-    return res.status(200).json({ success: true, message: 'Order submitted' });
+    res.status(200).json({ message: 'Order submitted successfully' });
   } catch (error) {
-    return res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 }
