@@ -14,10 +14,18 @@ export default function Home() {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onloadend = () => {
-      setImage(reader.result);
-    };
+    reader.onloadend = () => setImage(reader.result);
     reader.readAsDataURL(file);
+  };
+
+  const handleOrder = () => {
+    if (!image || !selectedFrame) {
+      alert("Please upload a photo and select a frame.");
+      return;
+    }
+
+    // 추후 주문 페이지로 넘기거나, 로컬에 저장 가능
+    alert("✅ Your design is ready to order!\n(We'll implement real checkout soon.)");
   };
 
   return (
@@ -49,7 +57,7 @@ export default function Home() {
         ))}
       </div>
 
-      <div className="relative w-[300px] h-[400px] mx-auto">
+      <div className="relative w-[300px] h-[400px] mx-auto mb-6">
         {image && (
           <img
             src={image}
@@ -65,6 +73,14 @@ export default function Home() {
           />
         )}
       </div>
+
+      <button
+        onClick={handleOrder}
+        className="bg-blue-500 text-white px-6 py-3 rounded shadow hover:bg-blue-600 transition disabled:opacity-50"
+        disabled={!image || !selectedFrame}
+      >
+        Order This
+      </button>
     </div>
   );
 }
