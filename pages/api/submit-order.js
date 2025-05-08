@@ -1,30 +1,32 @@
-// 1. Create a new file: pages/api/submit-order.js
+// /pages/api/submit-order.js
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Only POST requests allowed' });
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { name, email, frame, image } = req.body;
-
-  if (!name || !email || !frame || !image) {
-    return res.status(400).json({ message: 'Missing required fields' });
-  }
+  const body = req.body;
 
   try {
     const response = await fetch(
-      'https://script.google.com/a/macros/re-framephoto.com/s/AKfycbyuBDM7y0vrRFI5l_JlRNyQYpjELcIMrvIR5CA0u1liVoRUX99ms7xSht57cEnqaMWC9A/exec',
+      'https://script.google.com/macros/s/AKfycbyuBDM7y0vrRFI5l_JlRNyQYpjELcIMrvIR5CA0u1liVoRUX99ms7xSht57cEnqaMWC9A/exec',
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, frame, image }),
+        body: JSON.stringify(body),
+        headers: {
+          'Content-Type': 'application/json',
+        },
       }
     );
 
-    const result = await response.json();
-    res.status(200).json(result);
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to submit order');
+    }
+
+    return res.status(200).json({ success: true, message: 'Order submitted' });
   } catch (error) {
-    console.error('Submit Error:', error);
-    res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ error: error.message });
   }
 }
