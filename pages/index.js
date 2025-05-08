@@ -2,6 +2,13 @@ import { useState } from 'react';
 
 export default function Home() {
   const [image, setImage] = useState(null);
+  const [selectedFrame, setSelectedFrame] = useState(null);
+
+  const frames = [
+    { name: 'Natural', url: '/frames/natural.png' },
+    { name: 'White', url: '/frames/white.png' },
+    { name: 'Black', url: '/frames/black.png' },
+  ];
 
   const handleUpload = (e) => {
     const file = e.target.files?.[0];
@@ -22,12 +29,38 @@ export default function Home() {
         type="file"
         accept="image/*"
         onChange={handleUpload}
-        className="mb-4"
+        className="mb-6"
       />
 
+      <div className="flex gap-4 mb-6">
+        {frames.map((frame) => (
+          <button
+            key={frame.name}
+            onClick={() => setSelectedFrame(frame.url)}
+            className={`border rounded p-1 ${
+              selectedFrame === frame.url ? 'border-blue-500 ring-2 ring-blue-300' : 'border-gray-300'
+            }`}
+          >
+            <img src={frame.url} alt={frame.name} className="w-24 h-auto" />
+            <p className="text-sm">{frame.name}</p>
+          </button>
+        ))}
+      </div>
+
       {image && (
-        <div className="mt-4">
-          <img src={image} alt="Uploaded" className="max-w-xs rounded shadow" />
+        <div className="relative w-80 h-auto">
+          {selectedFrame && (
+            <img
+              src={selectedFrame}
+              alt="Frame"
+              className="absolute top-0 left-0 w-full h-auto z-10 pointer-events-none"
+            />
+          )}
+          <img
+            src={image}
+            alt="Uploaded"
+            className="relative w-full h-auto z-0"
+          />
         </div>
       )}
     </main>
