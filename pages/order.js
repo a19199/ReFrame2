@@ -1,4 +1,3 @@
-// pages/order.js
 import { useState } from 'react';
 import Head from 'next/head';
 
@@ -7,28 +6,44 @@ export default function OrderPage() {
   const [email, setEmail] = useState('');
   const [frame, setFrame] = useState('');
   const [image, setImage] = useState(null);
+  const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
+  const handleImage = (e) => {
+    const file = e.target.files[0];
+    setImage(file);
+    const reader = new FileReader();
+    reader.onloadend = () => setPreview(reader.result);
+    reader.readAsDataURL(file);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!image) return;
-
-    const formData = new FormData();
-    formData.append('name', name);
-    formData.append('email', email);
-    formData.append('frame', frame);
-    formData.append('photo', image);
+    if (!image || !frame || !name || !email) return;
 
     setLoading(true);
 
-    const res = await fetch('/api/submit-order', {
-      method: 'POST',
-      body: formData
-    });
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64Image = reader.result;
 
-    setLoading(false);
-    setSuccess(res.ok);
+      const res = await fetch('/api/submit-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          email,
+          frame,
+          image: base64Image,
+        }),
+      });
+
+      setLoading(false);
+      setSuccess(res.ok);
+    };
+
+    reader.readAsDataURL(image);
   };
 
   return (
@@ -62,17 +77,18 @@ export default function OrderPage() {
             required
           >
             <option value="">Select Frame</option>
-            <option value="natural">Natural</option>
-            <option value="white">White</option>
-            <option value="black">Black</option>
+            <option value="Natural">Natural</option>
+            <option value="White">White</option>
+            <option value="Black">Black</option>
           </select>
           <input
             className="w-full"
             type="file"
             accept="image/*"
-            onChange={(e) => setImage(e.target.files[0])}
+            onChange={handleImage}
             required
           />
+          {preview && <img src={preview} alt="Preview" className="w-48 mx-auto" />}
           <button
             type="submit"
             className="bg-black text-white px-4 py-2 rounded disabled:opacity-50"
@@ -80,7 +96,7 @@ export default function OrderPage() {
           >
             {loading ? 'Submitting...' : 'Submit Order'}
           </button>
-          {success && <p className="text-green-600">Order submitted successfully!</p>}
+          {success && <p className="text-green-600">✅ Order submitted successfully!</p>}
         </form>
       </div>
     </div>
