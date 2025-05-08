@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useRouter } from "next/router";
 
 export default function Home() {
   const [image, setImage] = useState(null);
   const [selectedFrame, setSelectedFrame] = useState(null);
+  const router = useRouter();
 
   const frameOptions = [
     { name: "Natural", url: "/frames/natural.png" },
@@ -14,7 +16,9 @@ export default function Home() {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onloadend = () => setImage(reader.result);
+    reader.onloadend = () => {
+      setImage(reader.result);
+    };
     reader.readAsDataURL(file);
   };
 
@@ -23,9 +27,9 @@ export default function Home() {
       alert("Please upload a photo and select a frame.");
       return;
     }
-
-    // 추후 주문 페이지로 넘기거나, 로컬에 저장 가능
-    alert("✅ Your design is ready to order!\n(We'll implement real checkout soon.)");
+    localStorage.setItem("uploadedImage", image);
+    localStorage.setItem("selectedFrame", selectedFrame);
+    router.push("/checkout");
   };
 
   return (
