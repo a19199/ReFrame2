@@ -28,16 +28,20 @@ export default function OrderPage() {
     reader.onloadend = async () => {
       const base64Image = reader.result;
 
-      const res = await fetch('/api/submit-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name,
-          email,
-          frame,
-          image: base64Image,
-        }),
-      });
+      const res = await fetch(
+        'https://script.google.com/macros/s/AKfycbwqs4_JPLxFoH7slCPkB-YGypSikApDpZR9aj6w279qWWwQxwN1zkRwuUjf_y9-7JHv/exec',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name,
+            email,
+            frame,
+            image: base64Image,
+            address: '', // optional
+          }),
+        }
+      );
 
       setLoading(false);
       setSuccess(res.ok);
